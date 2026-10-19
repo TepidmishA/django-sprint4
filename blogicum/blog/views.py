@@ -40,7 +40,10 @@ def index(request):
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
+    post = get_object_or_404(
+        Post.objects.select_related('category', 'location', 'author'),
+        pk=post_id,
+    )
     if post.author != request.user:
         if (
             not post.is_published
