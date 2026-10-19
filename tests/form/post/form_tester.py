@@ -17,15 +17,15 @@ class PostFormTester(BaseFormTester):
     @staticmethod
     def init_create_item_form(Form: Type[BaseForm], **form_data) -> BaseForm:
         image_data = BytesIO()
-        Image.new("RGB", (100, 100)).save(image_data, "JPEG")
+        Image.new('RGB', (100, 100)).save(image_data, 'JPEG')
         image_data.seek(0)
         from blog.models import Post
 
         files = {
             PostModelAdapter(Post).get_student_field_name(
-                "image"
+                'image'
             ): SimpleUploadedFile(
-                "test_image.jpg", image_data.read(), content_type="image/jpeg"
+                'test_image.jpg', image_data.read(), content_type='image/jpeg'
             ),
         }
 
@@ -35,15 +35,15 @@ class PostFormTester(BaseFormTester):
     @staticmethod
     def generate_files_dict() -> Dict[str, SimpleUploadedFile]:
         image_data = BytesIO()
-        Image.new("RGB", (100, 100)).save(image_data, "JPEG")
+        Image.new('RGB', (100, 100)).save(image_data, 'JPEG')
         image_data.seek(0)
         from blog.models import Post
 
         files = {
             PostModelAdapter(Post).get_student_field_name(
-                "image"
+                'image'
             ): SimpleUploadedFile(
-                "test_image.jpg", image_data.read(), content_type="image/jpeg"
+                'test_image.jpg', image_data.read(), content_type='image/jpeg'
             ),
         }
         return files

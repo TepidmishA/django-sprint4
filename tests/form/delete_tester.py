@@ -58,7 +58,7 @@ class DeleteTester(BaseTester):
         else:
             raise AssertionError(
                 f"Unexpected value type `{type(redirect_to_page)}` "
-                "for `redirect_to_page`"
+                'for `redirect_to_page`'
             )
         return redirect_to_page_repr
 
@@ -119,18 +119,18 @@ class DeleteTester(BaseTester):
                 get_response = submitter.client.get(delete_url)
             except Exception as error:
                 raise AssertionError(
-                    "При обработке GET-запроса автора комментария к странице "
-                    "удаления комментария возникло исключение: "
+                    'При обработке GET-запроса автора комментария к странице '
+                    'удаления комментария возникло исключение: '
                     f"{error}"
                 )
             if 'form' in get_response.context:
                 assert isinstance(get_response.context['form'], Form), (
-                    "Убедитесь, что на страницу удаления комментария не "
-                    "передается форма, которая используются для создания "
-                    "комментария. При использовании класса `DeleteVeiw` из "
-                    "модуля `django.views.generic` для реализации view-класса "
-                    "для удаления комментариев не задавайте значение атрибута "
-                    "класса `form_class`."
+                    'Убедитесь, что на страницу удаления комментария не '
+                    'передается форма, которая используются для создания '
+                    'комментария. При использовании класса `DeleteVeiw` из '
+                    'модуля `django.views.generic` для реализации view-класса '
+                    'для удаления комментариев не задавайте значение атрибута '
+                    'класса `form_class`.'
                 )
         response = submitter.test_submit(url=delete_url, data={})
         deleted = qs.filter(id=item_to_delete_adapter.id).first() is None

@@ -9,6 +9,6 @@ class UserModelAdapter(ModelAdapter):
         """Gets the field name (if `self` is class adapter) or its value
         (if `self` is item adapter) that is displayed on a page"""
         if isclass(self._item_or_cls):
-            return "last_name"
+            return 'last_name'
         else:
-            return self.last_name.replace("\n", "")
+            return self.last_name.replace('\n', '')

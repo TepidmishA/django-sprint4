@@ -13,21 +13,18 @@ class StudentModelAdapter(ModelAdapter):
 
     @property
     @abstractmethod
-    def _access_by_name_fields(self):
-        ...
+    def _access_by_name_fields(self): ...
 
     @property
     @abstractmethod
-    def AdapterFields(self) -> type:
-        ...
+    def AdapterFields(self) -> type: ...
 
     @property
     @abstractmethod
-    def ItemModel(self) -> Type[Model]:
-        ...
+    def ItemModel(self) -> Type[Model]: ...
 
     def __getattr__(self, name: str) -> Any:
-        if name.startswith("_") or name in self._access_by_name_fields:
+        if name.startswith('_') or name in self._access_by_name_fields:
             return getattr(self._item_or_cls, name)
 
         item_fields = [
@@ -44,8 +41,8 @@ class StudentModelAdapter(ModelAdapter):
 
         assert len(item_field_names) == len(item_fields), (
             f"Убедитесь, что в модели {self.ItemModel.__name__} нет полей,"
-            " которые не описаны в задании. Проверьте, что для всех полей"
-            " модели правильно заданы типы."
+            ' которые не описаны в задании. Проверьте, что для всех полей'
+            ' модели правильно заданы типы.'
         )
 
         adapter_field_key = get_field_key(
@@ -63,7 +60,7 @@ class StudentModelAdapter(ModelAdapter):
         return getattr(self._item_or_cls, item_field_name)
 
     def __setattr__(self, key, value):
-        if key.startswith("_"):
+        if key.startswith('_'):
             self.__dict__[key] = value
             return
         student_key = self.get_student_field_name(key)
@@ -74,5 +71,4 @@ class StudentModelAdapter(ModelAdapter):
 
     @property
     @abstractmethod
-    def displayed_field_name_or_value(self):
-        ...
+    def displayed_field_name_or_value(self): ...

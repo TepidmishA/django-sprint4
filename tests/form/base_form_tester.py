@@ -88,35 +88,34 @@ class BaseFormTester(BaseTester):
     ):
         super().__init__(*args, **kwargs)
 
-        soup = bs4.BeautifulSoup(response.content, features="html.parser")
+        soup = bs4.BeautifulSoup(response.content, features='html.parser')
 
         # Все формы на странице
-        forms = soup.find_all("form")
+        forms = soup.find_all('form')
         if not forms:
             raise FormTagMissingException()
 
         # Фильтруем, все кроме logout-формы
         candidates = []
         for f in forms:
-            if (
-                ("logout" not in ((f.get("action") or "").lower()))
-                and ("выйти" not in f.get_text(" ",strip=True).lower())
-                ):
+            if ('logout' not in ((f.get('action') or '').lower())) and (
+                'выйти' not in f.get_text(' ', strip=True).lower()
+            ):
                 candidates.append(f)
 
         if not candidates:
             candidates = forms
 
-        if getattr(self, "has_textarea", False):
-            textarea_candidates = [f for f in candidates if f.find("textarea")]
+        if getattr(self, 'has_textarea', False):
+            textarea_candidates = [f for f in candidates if f.find('textarea')]
             if textarea_candidates:
                 candidates = textarea_candidates
 
         form_tag = candidates[0]
         self._form_tag = form_tag
 
-        self._action = self._form_tag.get("action", "") or (
-            response.request["PATH_INFO"]
+        self._action = self._form_tag.get('action', '') or (
+            response.request['PATH_INFO']
         )
         self._ModelAdapter = ModelAdapter
 
@@ -124,8 +123,7 @@ class BaseFormTester(BaseTester):
 
     @property
     @abstractmethod
-    def has_textarea(self):
-        ...
+    def has_textarea(self): ...
 
     @property
     def unauthorized_edit_redirect_cbk(self):
@@ -177,7 +175,7 @@ class BaseFormTester(BaseTester):
         else:
             raise AssertionError(
                 f"Unexpected value type `{type(redirect_to_page)}` "
-                "for `redirect_to_page`"
+                'for `redirect_to_page`'
             )
         return redirect_to_page_repr
 
@@ -187,7 +185,7 @@ class BaseFormTester(BaseTester):
 
     @property
     def textarea_tag(self) -> bs4.Tag:
-        textarea = self._form_tag.find("textarea")
+        textarea = self._form_tag.find('textarea')
         if not textarea:
             raise TextareaTagMissingException()
         return textarea
@@ -196,7 +194,7 @@ class BaseFormTester(BaseTester):
         if not self._form_tag:
             raise FormTagMissingException()
 
-        if self._form_tag.get("method", "get").upper() != "POST":
+        if self._form_tag.get('method', 'get').upper() != 'POST':
             raise FormMethodException()
 
         if self.has_textarea and self._item_adapter:
@@ -289,7 +287,7 @@ class BaseFormTester(BaseTester):
                 self._ModelAdapter(form.Meta.model).get_student_field_name(k)
                 for k in form.data.keys()
             ]
-            student_form_fields_str = ", ".join(student_form_fields)
+            student_form_fields_str = ', '.join(student_form_fields)
             raise AssertionError(
                 self.validation_error_message(student_form_fields_str)
             )
@@ -298,7 +296,7 @@ class BaseFormTester(BaseTester):
                 self._ModelAdapter(created).author
                 == response.wsgi_request.user
             ), self.author_assignment_error_message
-            content = response.content.decode(encoding="utf8")
+            content = response.content.decode(encoding='utf8')
             if self._ModelAdapter(created).text in content:
                 if not assert_created:
                     raise AssertionError(self.display_text_error_message)
@@ -453,7 +451,7 @@ class BaseFormTester(BaseTester):
 
 
 class SubmitTester(ABC):
-    __slots__ = ["expected_codes", "client", "_test_response_cbk", "_tester"]
+    __slots__ = ['expected_codes', 'client', '_test_response_cbk', '_tester']
 
     def __init__(
         self,
@@ -485,8 +483,8 @@ class SubmitTester(ABC):
         ):
             raise AssertionError(err_msg)
         if assert_redirect is not None and assert_redirect:
-            assert hasattr(response, "redirect_chain") and getattr(
-                response, "redirect_chain"
+            assert hasattr(response, 'redirect_chain') and getattr(
+                response, 'redirect_chain'
             ), err_msg
             if isinstance(assert_redirect, tuple):  # expected TitledUrlRepr
                 (
@@ -506,7 +504,7 @@ class SubmitTester(ABC):
         redirect_to_page: Union[TitledUrlRepr, str],
         by_user: Optional[str] = None,
     ):
-        by_user = by_user or "пользователь"
+        by_user = by_user or 'пользователь'
         return partial(
             SubmitTester.test_response_cbk,
             assert_status_in=(HTTPStatus.OK,),
@@ -518,7 +516,7 @@ class SubmitTester(ABC):
     def get_test_response_ok_cbk(
         tester: BaseTester, by_user: Optional[str] = None
     ):
-        by_user = by_user or "авторизованным пользователем"
+        by_user = by_user or 'авторизованным пользователем'
         return partial(
             SubmitTester.test_response_cbk,
             assert_status_in=(HTTPStatus.OK,),
@@ -551,7 +549,7 @@ class AuthorisedSubmitTester(SubmitTester):
     ):
         return SubmitTester.get_test_response_redirect_cbk(
             tester=tester,
-            by_user=by_user or "авторизованным пользователем",
+            by_user=by_user or 'авторизованным пользователем',
             redirect_to_page=redirect_to_page,
         )
 
@@ -560,7 +558,7 @@ class AuthorisedSubmitTester(SubmitTester):
         tester: BaseTester, by_user: Optional[str] = None
     ):
         return SubmitTester.get_test_response_ok_cbk(
-            tester=tester, by_user=by_user or "авторизованным пользователем"
+            tester=tester, by_user=by_user or 'авторизованным пользователем'
         )
 
 
@@ -581,7 +579,7 @@ class UnauthorizedSubmitTester(SubmitTester):
     ):
         return SubmitTester.get_test_response_redirect_cbk(
             tester=tester,
-            by_user=by_user or "неавторизованным пользователем",
+            by_user=by_user or 'неавторизованным пользователем',
             redirect_to_page=redirect_to_page,
         )
 
@@ -603,6 +601,6 @@ class AnonymousSubmitTester(SubmitTester):
     ):
         return SubmitTester.get_test_response_redirect_cbk(
             tester=tester,
-            by_user=by_user or "неаутентифицированным пользователем",
-            redirect_to_page=redirect_to_page or "страницу аутентификации",
+            by_user=by_user or 'неаутентифицированным пользователем',
+            redirect_to_page=redirect_to_page or 'страницу аутентификации',
         )

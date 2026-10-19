@@ -52,8 +52,8 @@ class ContentTester(ABC):
     @abstractmethod
     def items_hardcoded_key(self):
         raise NotImplementedError(
-            "Override `items_hardcoded_key` property "
-            "in ContentTester`s child class"
+            'Override `items_hardcoded_key` property '
+            'in ContentTester`s child class'
         )
 
     @abstractmethod
@@ -66,7 +66,7 @@ class ContentTester(ABC):
         assert_status_in: Tuple[int] = (200,),
         assert_cbk: Union[
             Callable[[], None], str
-        ] = "raise_assert_page_loads_cbk",
+        ] = 'raise_assert_page_loads_cbk',
     ) -> HttpResponse:
         return self._testget(
             self.user_client, url, assert_status_in, assert_cbk
@@ -78,7 +78,7 @@ class ContentTester(ABC):
         assert_status_in: Tuple[int] = (200,),
         assert_cbk: Union[
             Callable[[], None], str
-        ] = "raise_assert_page_loads_cbk",
+        ] = 'raise_assert_page_loads_cbk',
     ) -> HttpResponse:
         return self._testget(
             self.another_user_client, url, assert_status_in, assert_cbk
@@ -91,7 +91,7 @@ class ContentTester(ABC):
         assert_status_in: Tuple[int] = (200,),
         assert_cbk: Union[
             Callable[[], None], str
-        ] = "raise_assert_page_loads_cbk",
+        ] = 'raise_assert_page_loads_cbk',
     ) -> HttpResponse:
         url = url or self.page_url.url
         try:
@@ -104,7 +104,7 @@ class ContentTester(ABC):
             elif isinstance(assert_cbk, str):
                 getattr(self, assert_cbk)()
             else:
-                raise AssertionError("Wrong type of `assert_cbk` argument.")
+                raise AssertionError('Wrong type of `assert_cbk` argument.')
 
         return response
 
@@ -123,13 +123,13 @@ class ContentTester(ABC):
 
         def setup_for_url(setup_items: List[Model]) -> UrlRepr:
             temp_category = self._mixer.blend(
-                "blog.Category", is_published=True
+                'blog.Category', is_published=True
             )
             temp_location = self._mixer.blend(
-                "blog.Location", is_published=True
+                'blog.Location', is_published=True
             )
             temp_post = self._mixer.blend(
-                "blog.Post",
+                'blog.Post',
                 is_published=True,
                 location=temp_location,
                 category=temp_category,
@@ -173,7 +173,7 @@ class ContentTester(ABC):
 class PostContentTester(ContentTester):
     @property
     def items_hardcoded_key(self):
-        return "page_obj"
+        return 'page_obj'
 
     @abstractmethod
     def raise_assert_page_loads_cbk(self):
@@ -188,52 +188,52 @@ class PostContentTester(ContentTester):
 class ProfilePostContentTester(PostContentTester):
     def items_key_error_message(self):
         return (
-            "Убедитесь, что существует ровно один ключ, под которым в словарь"
-            " контекста страницы пользователя передаются публикации."
+            'Убедитесь, что существует ровно один ключ, под которым в словарь'
+            ' контекста страницы пользователя передаются публикации.'
         )
 
     def items_hardcoded_key_error_message(self):
         return (
-            "Убедитесь, что в словарь контекста страницы пользователя"
+            'Убедитесь, что в словарь контекста страницы пользователя'
             f" публикации передаются под ключом `{self.items_hardcoded_key}`."
         )
 
     def raise_assert_page_loads_cbk(self):
         raise AssertionError(
-            "Убедитесь, что страница пользователя загружается без ошибок."
+            'Убедитесь, что страница пользователя загружается без ошибок.'
         )
 
     @property
     def image_display_error(self) -> str:
         return (
-            "Убедитесь, что на странице профиля автора отображаются"
-            " изображения публикаций."
+            'Убедитесь, что на странице профиля автора отображаются'
+            ' изображения публикаций.'
         )
 
 
 class MainPostContentTester(PostContentTester):
     def items_key_error_message(self):
         return (
-            "Убедитесь, что существует ровно один ключ, под которым в словарь"
-            " контекста главной страницы передаются публикации."
+            'Убедитесь, что существует ровно один ключ, под которым в словарь'
+            ' контекста главной страницы передаются публикации.'
         )
 
     def items_hardcoded_key_error_message(self):
         return (
-            "Убедитесь, что в словарь контекста главной страницы публикации"
+            'Убедитесь, что в словарь контекста главной страницы публикации'
             f" передаются под ключом `{self.items_hardcoded_key}`."
         )
 
     def raise_assert_page_loads_cbk(self):
         raise AssertionError(
-            "Убедитесь, что главная страница загружается без ошибок."
+            'Убедитесь, что главная страница загружается без ошибок.'
         )
 
     @property
     def image_display_error(self) -> str:
         return (
-            "Убедитесь, что на главной странице видны прикреплённые к постам"
-            " изображения."
+            'Убедитесь, что на главной странице видны прикреплённые к постам'
+            ' изображения.'
         )
 
 
@@ -246,32 +246,32 @@ class CategoryPostContentTester(PostContentTester):
             category = Category.objects.first()
             if category:
                 self._page_url = UrlRepr(
-                    f"/category/{category.slug}/", "/category/<category_slug>/"
+                    f"/category/{category.slug}/", '/category/<category_slug>/'
                 )
         return self._page_url
 
     def items_key_error_message(self):
         return (
-            "Убедитесь, что существует ровно один ключ, под которым в словарь"
-            " контекста страницы категории передаются публикации."
+            'Убедитесь, что существует ровно один ключ, под которым в словарь'
+            ' контекста страницы категории передаются публикации.'
         )
 
     def items_hardcoded_key_error_message(self):
         return (
-            "Убедитесь, что в словарь контекста страницы категории публикации"
+            'Убедитесь, что в словарь контекста страницы категории публикации'
             f" передаются под ключом `{self.items_hardcoded_key}`."
         )
 
     def raise_assert_page_loads_cbk(self):
         raise AssertionError(
-            "Убедитесь, что страница категории загружается без ошибок."
+            'Убедитесь, что страница категории загружается без ошибок.'
         )
 
     @property
     def image_display_error(self) -> str:
         return (
-            "Убедитесь, что на странице категории видны прикреплённые к постам"
-            " изображения."
+            'Убедитесь, что на странице категории видны прикреплённые к постам'
+            ' изображения.'
         )
 
 
@@ -284,7 +284,7 @@ def profile_content_tester(
     another_user_client: Client,
     unlogged_client: Client,
 ) -> ProfilePostContentTester:
-    url_repr = UrlRepr(f"/profile/{user.username}/", "/profile/<username>/")
+    url_repr = UrlRepr(f"/profile/{user.username}/", '/profile/<username>/')
     return ProfilePostContentTester(
         mixer,
         PostModel,
@@ -304,7 +304,7 @@ def main_content_tester(
     another_user_client: Client,
     unlogged_client: Client,
 ) -> MainPostContentTester:
-    url_repr = UrlRepr("/", "/")
+    url_repr = UrlRepr('/', '/')
     return MainPostContentTester(
         mixer, PostModel, PostModelAdapter, user_client, url_repr
     )
@@ -345,8 +345,8 @@ class TestContent:
             len(unpublished_posts_with_published_locations)
         )
         assert len(context_posts) == expected_n, (
-            "Убедитесь, что на странице пользователя автор может видеть свои"
-            " посты, снятые с публикации."
+            'Убедитесь, что на странице пользователя автор может видеть свои'
+            ' посты, снятые с публикации.'
         )
 
         response = self.main_tester.user_client_testget()
@@ -357,8 +357,8 @@ class TestContent:
         else:
             context_posts = response.context.get(items_key)
             assert len(context_posts) == 0, (
-                "Убедитесь, что на главной странице не отображаются посты, "
-                "снятые с публикации."
+                'Убедитесь, что на главной странице не отображаются посты, '
+                'снятые с публикации.'
             )
 
         response = self.category_tester.user_client_testget()
@@ -369,13 +369,15 @@ class TestContent:
         else:
             context_posts = response.context.get(items_key)
             assert len(context_posts) == 0, (
-                "Убедитесь, что на странице категории не отображаются посты, "
-                "снятые с публикации."
+                'Убедитесь, что на странице категории не отображаются посты, '
+                'снятые с публикации.'
             )
 
     def test_only_own_pubs_in_category(
-        self, user_client, post_with_published_location,
-            post_with_another_category
+        self,
+        user_client,
+        post_with_published_location,
+        post_with_another_category,
     ):
         response = self.category_tester.user_client_testget()
         try:
@@ -384,14 +386,13 @@ class TestContent:
             pass
         else:
             context_posts = response.context.get(items_key)
-            assert (
-                len(context_posts) == 1
-            ), ("Убедитесь, что на странице категории "
-                "не отображаются публикации других категорий.")
+            assert len(context_posts) == 1, (
+                'Убедитесь, что на странице категории '
+                'не отображаются публикации других категорий.'
+            )
 
     def test_only_own_pubs_in_profile(
-            self, user_client, post_with_published_location,
-            post_of_another_author
+        self, user_client, post_with_published_location, post_of_another_author
     ):
         response = self.profile_tester.user_client_testget()
         try:
@@ -400,10 +401,10 @@ class TestContent:
             pass
         else:
             context_posts = response.context.get(items_key)
-            assert (
-                    len(context_posts) == 1
-            ), ("Убедитесь, что на странице пользователя "
-                "не отображаются публикации других авторов.")
+            assert len(context_posts) == 1, (
+                'Убедитесь, что на странице пользователя '
+                'не отображаются публикации других авторов.'
+            )
 
     def test_unpublished_category(
         self, user_client, posts_with_unpublished_category
@@ -416,21 +417,21 @@ class TestContent:
             len(posts_with_unpublished_category)
         )
         assert len(context_posts) == expected_n, (
-            "Убедитесь, что на странице пользователя автор может видеть свои"
-            " посты, принадлежащие категории, снятой с публикации."
+            'Убедитесь, что на странице пользователя автор может видеть свои'
+            ' посты, принадлежащие категории, снятой с публикации.'
         )
 
         main_response = self.main_tester.user_client_testget()
         context_posts = main_response.context.get(self.main_tester.items_key)
         assert len(context_posts) == 0, (
-            "Убедитесь, что на главной странице не отображаются посты, "
-            "принадлежащие категории, снятой с публикации."
+            'Убедитесь, что на главной странице не отображаются посты, '
+            'принадлежащие категории, снятой с публикации.'
         )
 
         def raise_assert_not_exist_cbk():
             raise AssertionError(
-                "Убедитесь, что страница категории недоступна, если категория"
-                " снята с публикации."
+                'Убедитесь, что страница категории недоступна, если категория'
+                ' снята с публикации.'
             )
 
         self.category_tester.user_client_testget(
@@ -444,8 +445,8 @@ class TestContent:
         )
         expected_n = self.profile_tester.n_or_page_size(len(future_posts))
         assert len(context_posts) == expected_n, (
-            "Убедитесь, что на странице пользователя автор может видеть свои"
-            " отложенные публикации."
+            'Убедитесь, что на странице пользователя автор может видеть свои'
+            ' отложенные публикации.'
         )
 
         response = self.main_tester.user_client_testget()
@@ -455,10 +456,10 @@ class TestContent:
             pass
         else:
             context_posts = response.context.get(items_key)
-            assert (
-                len(context_posts) == 0
-            ), ("Убедитесь, что на главной странице "
-                "не отображаются отложенные публикации.")
+            assert len(context_posts) == 0, (
+                'Убедитесь, что на главной странице '
+                'не отображаются отложенные публикации.'
+            )
 
         response = self.category_tester.user_client_testget()
         try:
@@ -467,10 +468,10 @@ class TestContent:
             pass
         else:
             context_posts = response.context.get(items_key)
-            assert (
-                len(context_posts) == 0
-            ), ("Убедитесь, что на странице категории "
-                "не отображаются отложенные публикации.")
+            assert len(context_posts) == 0, (
+                'Убедитесь, что на странице категории '
+                'не отображаются отложенные публикации.'
+            )
 
     def test_pagination(
         self, user_client, many_posts_with_published_locations
@@ -491,49 +492,49 @@ class TestContent:
                 self.profile_tester,
                 self.profile_tester.user_client_testget,
                 (
-                    "Убедитесь, что публикации передаются в контекст страницы"
-                    " профиля автора отсортированными по времени их"
-                    " публикации, «от новых к старым»."
+                    'Убедитесь, что публикации передаются в контекст страницы'
+                    ' профиля автора отсортированными по времени их'
+                    ' публикации, «от новых к старым».'
                 ),
                 (
-                    "Убедитесь, что на странице профиля автора работает"
-                    " пагинация."
+                    'Убедитесь, что на странице профиля автора работает'
+                    ' пагинация.'
                 ),
             ),
             (
                 self.profile_tester,
                 self.profile_tester.another_client_testget,
                 (
-                    "Убедитесь, что публикации передаются в контекст страницы"
-                    " профиля автора отсортированными по времени их"
-                    " публикации, «от новых к старым»."
+                    'Убедитесь, что публикации передаются в контекст страницы'
+                    ' профиля автора отсортированными по времени их'
+                    ' публикации, «от новых к старым».'
                 ),
                 (
-                    "Убедитесь, что на странице профиля автора "
-                    "пагинация работает в соответствии с заданием ."
+                    'Убедитесь, что на странице профиля автора '
+                    'пагинация работает в соответствии с заданием .'
                 ),
             ),
             (
                 self.main_tester,
                 self.main_tester.user_client_testget,
                 (
-                    "Убедитесь, что публикации передаются в контекст главной"
-                    " страницы отсортированными по времени их публикации, «от"
-                    " новых к старым»."
+                    'Убедитесь, что публикации передаются в контекст главной'
+                    ' страницы отсортированными по времени их публикации, «от'
+                    ' новых к старым».'
                 ),
-                "Убедитесь, что на главной странице "
-                "пагинация работает в соответствии с заданием .",
+                'Убедитесь, что на главной странице '
+                'пагинация работает в соответствии с заданием .',
             ),
             (
                 self.category_tester,
                 self.category_tester.user_client_testget,
                 (
-                    "Убедитесь, что публикации передаются в контекст страницы"
-                    " категории отсортированными по времени их публикации, «от"
-                    " новых к старым»."
+                    'Убедитесь, что публикации передаются в контекст страницы'
+                    ' категории отсортированными по времени их публикации, «от'
+                    ' новых к старым».'
                 ),
-                "Убедитесь, что на странице категории "
-                "пагинация работает в соответствии с заданием .",
+                'Убедитесь, что на странице категории '
+                'пагинация работает в соответствии с заданием .',
             ),
         ):
             response = response_get_func()
@@ -557,9 +558,9 @@ class TestContent:
 
         for i, tester in enumerate(testers):
             img_soup_with_post_img = BeautifulSoup(
-                tester.user_client_testget().content.decode("utf-8"),
-                features="html.parser",
-                parse_only=SoupStrainer("img"),
+                tester.user_client_testget().content.decode('utf-8'),
+                features='html.parser',
+                parse_only=SoupStrainer('img'),
             )
             img_n_with_post_img[i] = len(img_soup_with_post_img)
 
@@ -568,9 +569,9 @@ class TestContent:
 
         for i, tester in enumerate(testers):
             img_soup_without_post_img = BeautifulSoup(
-                tester.user_client_testget().content.decode("utf-8"),
-                features="html.parser",
-                parse_only=SoupStrainer("img"),
+                tester.user_client_testget().content.decode('utf-8'),
+                features='html.parser',
+                parse_only=SoupStrainer('img'),
             )
             img_n_without_post_img = len(img_soup_without_post_img)
             assert (

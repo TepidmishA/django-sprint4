@@ -24,18 +24,17 @@ from conftest import (
 @pytest.fixture
 def posts_with_unpublished_category(mixer: Mixer, user: Model):
     return mixer.cycle(N_PER_FIXTURE).blend(
-        "blog.Post", author=user, category__is_published=False
+        'blog.Post', author=user, category__is_published=False
     )
 
 
 @pytest.fixture
 def future_posts(mixer: Mixer, user: Model):
     date_later_now = (
-        timezone.now() + timedelta(days=date)
-        for date in range(1, 11)
+        timezone.now() + timedelta(days=date) for date in range(1, 11)
     )
     return mixer.cycle(N_PER_FIXTURE).blend(
-        "blog.Post", author=user, pub_date=date_later_now
+        'blog.Post', author=user, pub_date=date_later_now
     )
 
 
@@ -44,7 +43,7 @@ def unpublished_posts_with_published_locations(
     mixer: Mixer, user, published_locations, published_category
 ):
     return mixer.cycle(N_PER_FIXTURE).blend(
-        "blog.Post",
+        'blog.Post',
         author=user,
         is_published=False,
         category=published_category,
@@ -54,12 +53,15 @@ def unpublished_posts_with_published_locations(
 
 @pytest.fixture
 def post_with_another_category(
-    mixer: Mixer, user, published_location, published_category,
-        another_category
+    mixer: Mixer,
+    user,
+    published_location,
+    published_category,
+    another_category,
 ):
     assert published_category.id != another_category.id
     return mixer.blend(
-        "blog.Post",
+        'blog.Post',
         location=published_location,
         category=another_category,
         author=user,
@@ -68,11 +70,11 @@ def post_with_another_category(
 
 @pytest.fixture
 def post_of_another_author(
-    mixer: Mixer, user, another_user,  published_location, published_category
+    mixer: Mixer, user, another_user, published_location, published_category
 ):
     assert user.id != another_user.id
     return mixer.blend(
-        "blog.Post",
+        'blog.Post',
         location=published_location,
         category=published_category,
         author=another_user,
@@ -81,7 +83,8 @@ def post_of_another_author(
 
 @pytest.fixture
 def post_with_published_location(
-        mixer: Mixer, user, published_location, published_category):
+    mixer: Mixer, user, published_location, published_category
+):
     img = Image.new('RGB', (100, 100), color=(73, 109, 137))
     img_io = BytesIO()
     img.save(img_io, format='JPEG')
@@ -92,7 +95,7 @@ def post_with_published_location(
         location=published_location,
         category=published_category,
         author=user,
-        image=image_file
+        image=image_file,
     )
     return post
 
@@ -102,7 +105,7 @@ def many_posts_with_published_locations(
     mixer: Mixer, user, published_locations, published_category
 ):
     return mixer.cycle(N_PER_PAGE * 2).blend(
-        "blog.Post",
+        'blog.Post',
         author=user,
         category=published_category,
         location=mixer.sequence(*published_locations),
@@ -120,8 +123,8 @@ def post_comment_context_form_item(
         response.context,
         BaseForm,
         (
-            "Убедитесь, что в словарь контекста для страницы поста передаётся"
-            " ровно одна форма для создания комментария."
+            'Убедитесь, что в словарь контекста для страницы поста передаётся'
+            ' ровно одна форма для создания комментария.'
         ),
     )
     return result
@@ -136,8 +139,8 @@ def create_post_context_form_item(
         response.context,
         BaseForm,
         (
-            "Убедитесь, что в словарь контекста для страницы создания поста"
-            " передаётся ровно одна форма."
+            'Убедитесь, что в словарь контекста для страницы создания поста'
+            ' передаётся ровно одна форма.'
         ),
     )
     return result

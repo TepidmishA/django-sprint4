@@ -8,51 +8,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("blog", "0003_post_image"),
+        ('blog', '0003_post_image'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Comment",
+            name='Comment',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("text", models.TextField(verbose_name="Текст комментария")),
+                ('text', models.TextField(verbose_name='Текст комментария')),
                 (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="Добавлено"),
+                    'created_at',
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name='Добавлено'
+                    ),
                 ),
                 (
-                    "author",
+                    'author',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="comments",
+                        related_name='comments',
                         to=settings.AUTH_USER_MODEL,
-                        verbose_name="Автор",
+                        verbose_name='Автор',
                     ),
                 ),
                 (
-                    "post",
+                    'post',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="comments",
-                        to="blog.post",
-                        verbose_name="Публикация",
+                        related_name='comments',
+                        to='blog.post',
+                        verbose_name='Публикация',
                     ),
                 ),
             ],
             options={
-                "verbose_name": "комментарий",
-                "verbose_name_plural": "Комментарии",
-                "ordering": ("created_at",),
+                'verbose_name': 'комментарий',
+                'verbose_name_plural': 'Комментарии',
+                'ordering': ('created_at',),
             },
         ),
     ]

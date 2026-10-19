@@ -18,8 +18,7 @@ from form.user.edit_form_tester import EditUserFormTester
 from test_edit import _test_edit
 
 
-class ManageProfileLinksException(Exception):
-    ...
+class ManageProfileLinksException(Exception): ...
 
 
 @pytest.mark.django_db
@@ -28,13 +27,13 @@ def test_custom_err_handlers(client):
         from blogicum import urls as blogicum_urls
     except Exception:
         raise AssertionError(
-            "Убедитесь, в головном файле с маршрутами нет ошибок."
+            'Убедитесь, в головном файле с маршрутами нет ошибок.'
         )
     urls_src_squashed = squash_code(inspect.getsource(blogicum_urls))
-    if "django.contrib.auth.urls" not in urls_src_squashed:
+    if 'django.contrib.auth.urls' not in urls_src_squashed:
         raise AssertionError(
-            "Убедитесь, что подключены маршруты для работы с пользователями из"
-            " `django.contrib.auth.urls`."
+            'Убедитесь, что подключены маршруты для работы с пользователями из'
+            ' `django.contrib.auth.urls`.'
         )
 
     def search_url_patterns(substring):
@@ -53,31 +52,33 @@ def test_custom_err_handlers(client):
                     )
             return results
 
-        search_patterns(head="", patterns=resolver.url_patterns)
+        search_patterns(head='', patterns=resolver.url_patterns)
 
         return results
 
-    registration_url = "auth/registration/"
+    registration_url = 'auth/registration/'
     auth_registration_patterns = search_url_patterns(registration_url)
     assert auth_registration_patterns, (
-        "Убедитесь, что в головном файле с маршрутами переопределён маршрут"
+        'Убедитесь, что в головном файле с маршрутами переопределён маршрут'
         f" `{registration_url}`."
     )
 
     auth_templates = {
-        "logged_out.html",
-        "login.html",
-        "password_change_done.html",
-        "password_change_form.html",
-        "password_reset_complete.html",
-        "password_reset_confirm.html",
-        "password_reset_done.html",
-        "password_reset_form.html",
-        "registration_form.html",
+        'logged_out.html',
+        'login.html',
+        'password_change_done.html',
+        'password_change_form.html',
+        'password_reset_complete.html',
+        'password_reset_confirm.html',
+        'password_reset_done.html',
+        'password_reset_form.html',
+        'registration_form.html',
     }
     for template in auth_templates:
         try:
-            fpath: Path = Path(settings.TEMPLATES_DIR) / "registration" / template
+            fpath: Path = (
+                Path(settings.TEMPLATES_DIR) / 'registration' / template
+            )
         except Exception as e:
             raise AssertionError(
                 'Убедитесь, что переменная TEMPLATES_DIR в настройках проекта '
@@ -93,44 +94,45 @@ def test_custom_err_handlers(client):
 
 @pytest.mark.django_db
 def test_profile(
-        user, another_user, user_client, another_user_client, unlogged_client
+    user, another_user, user_client, another_user_client, unlogged_client
 ):
     user_url = f"/profile/{user.username}/"
-    printed_url = "/profile/<username>/"
+    printed_url = '/profile/<username>/'
 
     User = get_user_model()
     status_code_not_404_err_msg = (
-        "Убедитесь, что при обращении к странице несуществующего "
-        "пользователя возвращается статус 404."
+        'Убедитесь, что при обращении к странице несуществующего '
+        'пользователя возвращается статус 404.'
     )
     try:
-        response = user_client.get("/profile/this_is_unexisting_user_name/")
+        response = user_client.get('/profile/this_is_unexisting_user_name/')
     except User.DoesNotExist:
         raise AssertionError(status_code_not_404_err_msg)
 
-    assert response.status_code == HTTPStatus.NOT_FOUND, (
-        status_code_not_404_err_msg)
+    assert (
+        response.status_code == HTTPStatus.NOT_FOUND
+    ), status_code_not_404_err_msg
 
     user_response: HttpResponse = user_client.get(user_url)
 
-    user_content = user_response.content.decode("utf-8")
+    user_content = user_response.content.decode('utf-8')
 
     anothers_same_page_response: HttpResponse = another_user_client.get(
         user_url
     )
     anothers_same_page_content = anothers_same_page_response.content.decode(
-        "utf-8"
+        'utf-8'
     )
 
     unlogged_same_page_response: HttpResponse = unlogged_client.get(user_url)
     unlogged_same_page_content = unlogged_same_page_response.content.decode(
-        "utf-8"
+        'utf-8'
     )
 
     for profile_user, profile_user_content in (
-            (user, user_content),
-            (user, unlogged_same_page_content),
-            (user, anothers_same_page_content),
+        (user, user_content),
+        (user, unlogged_same_page_content),
+        (user, anothers_same_page_content),
     ):
         _test_user_info_displayed(
             profile_user, profile_user_content, printed_url
@@ -142,9 +144,9 @@ def test_profile(
         )
     except ManageProfileLinksException:
         raise AssertionError(
-            "Убедитесь, что на странице профиля пользователя ссылки для"
-            " редактирования профиля и изменения пароля видны только владельцу"
-            " профиля, но не другим пользователям."
+            'Убедитесь, что на странице профиля пользователя ссылки для'
+            ' редактирования профиля и изменения пароля видны только владельцу'
+            ' профиля, но не другим пользователям.'
         )
 
     unlogged_diff_urls = get_extra_urls(
@@ -152,8 +154,8 @@ def test_profile(
     )
 
     assert {edit_url, change_pwd_url}.issubset(set(unlogged_diff_urls)), (
-        "Убедитесь, что неаутентифицированному пользователю недоступны ссылки"
-        " для редактирования профиля и изменения пароля."
+        'Убедитесь, что неаутентифицированному пользователю недоступны ссылки'
+        ' для редактирования профиля и изменения пароля.'
     )
 
     item_to_edit = user
@@ -176,22 +178,22 @@ def test_profile(
 
 
 def _test_user_info_displayed(
-        profile_user: Model, profile_user_content: str, printed_url: str
+    profile_user: Model, profile_user_content: str, printed_url: str
 ) -> None:
     if profile_user.first_name not in profile_user_content:
         raise AssertionError(
             f"Убедитесь, что на странице `{printed_url}` отображается имя"
-            " пользователя."
+            ' пользователя.'
         )
     if profile_user.last_name not in profile_user_content:
         raise AssertionError(
             f"Убедитесь, что на странице `{printed_url}` отображается фамилия"
-            " пользователя."
+            ' пользователя.'
         )
 
 
 def try_get_profile_manage_urls(
-        user_content: str, anothers_page_content: str, ignore_urls: Set[str]
+    user_content: str, anothers_page_content: str, ignore_urls: Set[str]
 ) -> Tuple[str, str]:
     diff_urls = get_extra_urls(
         base_content=anothers_page_content,
@@ -203,12 +205,12 @@ def try_get_profile_manage_urls(
 
     # swap variables if needed
     edit_url, change_pwd_url = diff_urls
-    change_pwd_marker = "/auth/password_change/"
+    change_pwd_marker = '/auth/password_change/'
     if change_pwd_marker in edit_url:
         edit_url, change_pwd_url = change_pwd_url, edit_url
     if change_pwd_marker not in change_pwd_url:
         raise AssertionError(
-            "Убедитесь, что на странице профиля владельцу этого профиля"
+            'Убедитесь, что на странице профиля владельцу этого профиля'
             f" доступна ссылка `{change_pwd_marker}` для изменения пароля."
         )
 
@@ -216,13 +218,13 @@ def try_get_profile_manage_urls(
 
 
 def get_extra_urls(
-        base_content: str,
-        extra_content: str,
-        ignore_urls: Optional[Set[str]] = None,
+    base_content: str,
+    extra_content: str,
+    ignore_urls: Optional[Set[str]] = None,
 ):
     ignore_urls = ignore_urls or set()
     find_links_kwargs = dict(
-        urls_start_with="", start_lineix=-1, end_lineix=-1
+        urls_start_with='', start_lineix=-1, end_lineix=-1
     )
     user_links = set(
         find_links_between_lines(extra_content, **find_links_kwargs)
@@ -231,8 +233,8 @@ def get_extra_urls(
         find_links_between_lines(base_content, **find_links_kwargs)
     )
     diff_urls = [
-        x.get("href")
+        x.get('href')
         for x in (user_links - anothers_page_links)
-        if x.get("href") not in ignore_urls
+        if x.get('href') not in ignore_urls
     ]
     return diff_urls

@@ -16,28 +16,51 @@ from adapters.post import PostModelAdapter
 from conftest import _TestModelAttrs, KeyVal, get_a_post_get_response_safely
 from fixtures.types import CommentModelAdapterT
 from form.base_form_tester import (
-    FormValidationException, AuthorisedSubmitTester)
+    FormValidationException,
+    AuthorisedSubmitTester,
+)
 from form.comment.create_form_tester import CreateCommentFormTester
 from form.comment.delete_tester import DeleteCommentTester
 from form.comment.edit_form_tester import EditCommentFormTester
 from form.comment.find_urls import find_edit_and_delete_urls
-from test_content import ProfilePostContentTester, profile_content_tester
+from test_content import (
+    ProfilePostContentTester,
+    profile_content_tester,  # noqa: F401
+)
 from test_edit import _test_edit
 
 
-@pytest.mark.usefixtures("CommentModel", "CommentModelAdapter")
+@pytest.mark.usefixtures('CommentModel', 'CommentModelAdapter')
 @pytest.mark.parametrize(
-    ("field", "type", "params", "field_error", "type_error",
-     "param_error", "value_error"),
+    (
+        'field',
+        'type',
+        'params',
+        'field_error',
+        'type_error',
+        'param_error',
+        'value_error',
+    ),
     [
-        ("post", ForeignKey, {}, None, None, None, None),
-        ("author", ForeignKey, {}, None, None, None, None),
-        ("text", TextField, {}, None, None, None, None),
-        ("created_at", DateTimeField, {"auto_now_add": True},
-         None, None, None, None),
+        ('post', ForeignKey, {}, None, None, None, None),
+        ('author', ForeignKey, {}, None, None, None, None),
+        ('text', TextField, {}, None, None, None, None),
+        (
+            'created_at',
+            DateTimeField,
+            {'auto_now_add': True},
+            None,
+            None,
+            None,
+            None,
+        ),
     ],
-    ids=["`post` field", "`author` field",
-         "`text` field", "`created_at` field"]
+    ids=[
+        '`post` field',
+        '`author` field',
+        '`text` field',
+        '`created_at` field',
+    ],
 )
 class TestCommentModelAttrs(_TestModelAttrs):
     @pytest.fixture(autouse=True)
@@ -56,26 +79,26 @@ def test_comment_created_at(comment, CommentModelAdapter):
     assert abs(
         comment.created_at.replace(tzinfo=None) - now_utc
     ) < datetime.timedelta(seconds=1), (
-        "Убедитесь, что при создании комментария ему присваиваются текущие"
-        " дата и время."
+        'Убедитесь, что при создании комментария ему присваиваются текущие'
+        ' дата и время.'
     )
 
 
 def test_link_order_in_comment_template():
-    expected_template_dir = settings.BASE_DIR / "templates"
+    expected_template_dir = settings.BASE_DIR / 'templates'
     assert expected_template_dir.is_dir(), (
-        "Убедитесь, что шаблоны проекта располагаются в директории "
-        "`./blogicum/templates` (на уровне с файлом `manage.py`)."
+        'Убедитесь, что шаблоны проекта располагаются в директории '
+        '`./blogicum/templates` (на уровне с файлом `manage.py`).'
     )
     comment_template_file = (
         expected_template_dir / 'includes' / 'comments.html'
     )
     assert comment_template_file.is_file(), (
-        "Убедитесь, что в директории `./blogicum/templates/includes` есть "
-        "файл `comments.html`."
+        'Убедитесь, что в директории `./blogicum/templates/includes` есть '
+        'файл `comments.html`.'
     )
     with open(
-            comment_template_file, "r", encoding="utf-8", errors="ignore"
+        comment_template_file, 'r', encoding='utf-8', errors='ignore'
     ) as f:
         comments_template = f.read()
     expected_link_order_pattern = re.compile(
@@ -84,25 +107,25 @@ def test_link_order_in_comment_template():
         r"'blog:delete_comment' post\.id comment\.id %}\""
     )
     assert expected_link_order_pattern.search(comments_template), (
-        "Не изменяйте порядок ссылок для редактировани и удаления комментария "
-        "в шаблоне `./blogicum/templates/includes/comments.html`. Первой "
-        "должна быть ссылка на редактирование, второй - на удаление."
+        'Не изменяйте порядок ссылок для редактировани и удаления комментария '
+        'в шаблоне `./blogicum/templates/includes/comments.html`. Первой '
+        'должна быть ссылка на редактирование, второй - на удаление.'
     )
 
 
 def create_comment_creation_forms(
-        creation_tester: CreateCommentFormTester,
-        Form: Type[BaseForm],
-        CommentModel: Type[Model],
-        CommentModelAdapter: CommentModelAdapterT,
-        return_single_form: bool = False,
+    creation_tester: CreateCommentFormTester,
+    Form: Type[BaseForm],
+    CommentModel: Type[Model],
+    CommentModelAdapter: CommentModelAdapterT,
+    return_single_form: bool = False,
 ) -> Union[BaseForm, List[BaseForm]]:
     item_ix_start: int = random.randint(1000000, 2000000)
     item_ix_cnt: int = 5
     rand_range = list(range(item_ix_start, item_ix_start + item_ix_cnt))
     forms_data = []
     for i in rand_range:
-        forms_data.append({"text": f"Test create comment {i} text"})
+        forms_data.append({'text': f"Test create comment {i} text"})
 
     forms_to_create = creation_tester.init_create_item_forms(
         Form,
@@ -117,7 +140,7 @@ def create_comment_creation_forms(
         )
     except FormValidationException as e:
         raise AssertionError(
-            "Убедитесь, что для валидации"
+            'Убедитесь, что для валидации'
             f" {creation_tester.of_which_form} достаточно заполнить следующие"
             f" поля: {list(forms_to_create[0].data.keys())}. При валидации"
             f" формы возникли следующие ошибки: {e}"
@@ -131,15 +154,15 @@ def create_comment_creation_forms(
 
 @pytest.mark.django_db(transaction=True)
 def test_comment(
-        user_client: django.test.Client,
-        another_user_client: django.test.Client,
-        unlogged_client: django.test.Client,
-        post_with_published_location: Any,
-        another_user: Model,
-        post_comment_context_form_item: Tuple[str, BaseForm],
-        CommentModel: Type[Model],
-        CommentModelAdapter: CommentModelAdapterT,
-        profile_content_tester: ProfilePostContentTester
+    user_client: django.test.Client,
+    another_user_client: django.test.Client,
+    unlogged_client: django.test.Client,
+    post_with_published_location: Any,
+    another_user: Model,
+    post_comment_context_form_item: Tuple[str, BaseForm],
+    CommentModel: Type[Model],
+    CommentModelAdapter: CommentModelAdapterT,
+    profile_content_tester: ProfilePostContentTester,
 ):
     post_with_published_location.author = another_user
     post_with_published_location.save()
@@ -161,36 +184,37 @@ def test_comment(
 
     Form: Type[BaseForm] = type(ctx_form)
     forms_to_create = create_comment_creation_forms(
-        creation_tester, Form, CommentModel, CommentModelAdapter)
+        creation_tester, Form, CommentModel, CommentModelAdapter
+    )
 
     response_on_created, created_items = creation_tester.test_create_several(
         forms_to_create[1:], qs=CommentModel.objects.all()
     )
-    content = response_on_created.content.decode(encoding="utf8")
+    content = response_on_created.content.decode(encoding='utf8')
     creation_tester.test_creation_response(content, created_items)
 
     comment_count_repr = f"({len(created_items)})"
 
-    index_content = user_client.get("/").content.decode("utf-8")
+    index_content = user_client.get('/').content.decode('utf-8')
     if comment_count_repr not in index_content:
         raise AssertionError(
-            "Убедитесь, что на главной странице под постами отображается"
-            " количество комментариев. Число комментариев должно быть указано"
-            " в круглых скобках."
+            'Убедитесь, что на главной странице под постами отображается'
+            ' количество комментариев. Число комментариев должно быть указано'
+            ' в круглых скобках.'
         )
 
     # check comment count on profile page
     comment_adapter = CommentModelAdapter(created_items[0])
     comment_post_adapter = PostModelAdapter(comment_adapter.post)
     author_profile_url = f'/profile/{comment_post_adapter.author.username}/'
-    profile_content = (
-        profile_content_tester.user_client_testget(
-            url=author_profile_url).content.decode("utf-8"))
+    profile_content = profile_content_tester.user_client_testget(
+        url=author_profile_url
+    ).content.decode('utf-8')
     if comment_count_repr not in profile_content:
         raise AssertionError(
-            "Убедитесь, что на странице пользователя под постами отображается"
-            " количество комментариев. Число комментариев должно быть указано"
-            " в круглых скобках."
+            'Убедитесь, что на странице пользователя под постами отображается'
+            ' количество комментариев. Число комментариев должно быть указано'
+            ' в круглых скобках.'
         )
 
     created_item_adapters = [CommentModelAdapter(i) for i in created_items]
@@ -202,7 +226,7 @@ def test_comment(
         response_on_created,
         urls_start_with=KeyVal(
             key=post_url.replace(
-                f"/{post_with_published_location.id}/", "/<post_id>/"
+                f"/{post_with_published_location.id}/", '/<post_id>/'
             ),
             val=post_url,
         ),
@@ -244,51 +268,48 @@ def test_comment(
     )
 
     status_404_on_edit_deleted_comment_err_msg = (
-        "Убедитесь, что при обращении к странице редактирования"
-        " несуществующего комментария возвращается статус 404."
+        'Убедитесь, что при обращении к странице редактирования'
+        ' несуществующего комментария возвращается статус 404.'
     )
     try:
         response = user_client.get(edit_url[0])
     except CommentModel.DoesNotExist:
-        raise AssertionError(
-            status_404_on_edit_deleted_comment_err_msg
-        )
-    assert response.status_code == HTTPStatus.NOT_FOUND, (
-        status_404_on_edit_deleted_comment_err_msg)
+        raise AssertionError(status_404_on_edit_deleted_comment_err_msg)
+    assert (
+        response.status_code == HTTPStatus.NOT_FOUND
+    ), status_404_on_edit_deleted_comment_err_msg
 
     def _test_delete_unexisting_comment(err_msg):
         try:
             response = user_client.get(delete_url_addr)
         except CommentModel.DoesNotExist:
-            raise AssertionError(
-                err_msg
-            )
+            raise AssertionError(err_msg)
         assert response.status_code == HTTPStatus.NOT_FOUND, err_msg
 
     _test_delete_unexisting_comment(
-        "Убедитесь, что при обращении к странице удаления несуществующего"
-        " комментария возвращается статус 404."
+        'Убедитесь, что при обращении к странице удаления несуществующего'
+        ' комментария возвращается статус 404.'
     )
 
     item_to_edit_adapter.post.delete()
     item_to_edit_adapter.post.save()
 
     _test_delete_unexisting_comment(
-        "Убедитесь, что при обращении к странице удаления комментария "
-        "несуществующего поста возвращается статус 404."
+        'Убедитесь, что при обращении к странице удаления комментария '
+        'несуществующего поста возвращается статус 404.'
     )
 
 
 @pytest.mark.django_db(transaction=True)
 def test_404_on_comment_deleted_post(
-        user_client: django.test.Client,
-        another_user_client: django.test.Client,
-        unlogged_client: django.test.Client,
-        post_with_published_location: Any,
-        another_user: Model,
-        post_comment_context_form_item: Tuple[str, BaseForm],
-        CommentModel: Type[Model],
-        CommentModelAdapter: CommentModelAdapterT,
+    user_client: django.test.Client,
+    another_user_client: django.test.Client,
+    unlogged_client: django.test.Client,
+    post_with_published_location: Any,
+    another_user: Model,
+    post_comment_context_form_item: Tuple[str, BaseForm],
+    CommentModel: Type[Model],
+    CommentModelAdapter: CommentModelAdapterT,
 ):
     post_with_published_location.author = another_user
     post_with_published_location.save()
@@ -308,8 +329,11 @@ def test_404_on_comment_deleted_post(
 
     Form: Type[BaseForm] = type(ctx_form)
     form_to_create = create_comment_creation_forms(
-        creation_tester, Form, CommentModel, CommentModelAdapter,
-        return_single_form=True
+        creation_tester,
+        Form,
+        CommentModel,
+        CommentModelAdapter,
+        return_single_form=True,
     )
 
     post_with_published_location.delete()
@@ -322,8 +346,8 @@ def test_404_on_comment_deleted_post(
             test_response_cbk=(
                 AuthorisedSubmitTester.get_test_response_404_cbk(
                     err_msg=(
-                        "Убедитесь, что при попытке создания комментария "
-                        "к несуществующему посту возвращается статус 404."
+                        'Убедитесь, что при попытке создания комментария '
+                        'к несуществующему посту возвращается статус 404.'
                     )
                 )
             ),

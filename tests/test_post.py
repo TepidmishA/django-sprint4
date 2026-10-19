@@ -18,34 +18,55 @@ from blog.models import Post
 from conftest import (
     _TestModelAttrs,
     KeyVal,
-    get_create_a_post_get_response_safely, get_get_response_safely,
+    get_create_a_post_get_response_safely,
+    get_get_response_safely,
 )
 from fixtures.types import CommentModelAdapterT, ModelAdapterT
 from form.base_form_tester import (
-    FormValidationException, AuthorisedSubmitTester, SubmitTester)
+    FormValidationException,
+    AuthorisedSubmitTester,
+    SubmitTester,
+)
 from form.post.create_form_tester import CreatePostFormTester
 from form.post.delete_tester import DeletePostTester
 from form.post.edit_form_tester import EditPostFormTester
 from form.post.find_urls import find_edit_and_delete_urls
 from form.post.form_tester import PostFormTester
-from test_content import MainPostContentTester, main_content_tester
+from test_content import (
+    MainPostContentTester,
+    main_content_tester,  # noqa: F401
+)
 from test_edit import _test_edit
 
 
 @pytest.mark.parametrize(
-    ("field", "type", "params", "field_error", "type_error",
-     "param_error", "value_error"),
+    (
+        'field',
+        'type',
+        'params',
+        'field_error',
+        'type_error',
+        'param_error',
+        'value_error',
+    ),
     [
-        ("image", ImageField, {}, None, None, None, None),
-        ("pub_date", DateTimeField, {
-            'auto_now_add': False
-        }, None, None, None, (
-                 "Проверьте, что в модели Post в атрибуте pub_date параметр "
-                 "`auto_now_add` не установлен или имеет значение `False`. "
-                 "В ином случае станет невозможно публиковать посты "
-                 "задним числом и отложенные посты.")),
+        ('image', ImageField, {}, None, None, None, None),
+        (
+            'pub_date',
+            DateTimeField,
+            {'auto_now_add': False},
+            None,
+            None,
+            None,
+            (
+                'Проверьте, что в модели Post в атрибуте pub_date параметр '
+                '`auto_now_add` не установлен или имеет значение `False`. '
+                'В ином случае станет невозможно публиковать посты '
+                'задним числом и отложенные посты.'
+            ),
+        ),
     ],
-    ids=["`image` field", "`pub_date` field"]
+    ids=['`image` field', '`pub_date` field'],
 )
 class TestPostModelAttrs(_TestModelAttrs):
     @pytest.fixture(autouse=True)
@@ -64,23 +85,23 @@ def test_post_created_at(post_with_published_location):
     assert abs(
         post_with_published_location.created_at.replace(tzinfo=None) - now_utc
     ) < datetime.timedelta(seconds=1), (
-        "Убедитесь, что при создании поста ему присваиваются текущие дата и"
-        " время."
+        'Убедитесь, что при создании поста ему присваиваются текущие дата и'
+        ' время.'
     )
 
 
 @pytest.mark.django_db(transaction=True)
 def test_post(
-        published_category: Model,
-        published_location: Model,
-        user_client: django.test.Client,
-        another_user_client: django.test.Client,
-        unlogged_client: django.test.Client,
-        comment_to_a_post: Model,
-        create_post_context_form_item: Tuple[str, BaseForm],
-        PostModel: Type[Model],
-        CommentModelAdapter: CommentModelAdapterT,
-        main_content_tester: MainPostContentTester
+    published_category: Model,
+    published_location: Model,
+    user_client: django.test.Client,
+    another_user_client: django.test.Client,
+    unlogged_client: django.test.Client,
+    comment_to_a_post: Model,
+    create_post_context_form_item: Tuple[str, BaseForm],
+    PostModel: Type[Model],
+    CommentModelAdapter: CommentModelAdapterT,
+    main_content_tester: MainPostContentTester,
 ):
     _, ctx_form = create_post_context_form_item
 
@@ -104,9 +125,9 @@ def test_post(
     created_content = response_on_created.content.decode('utf-8')
     img_count = created_content.count('<img')
     expected_img_count = main_content_tester.n_or_page_size(len(created_items))
-    assert img_count >= expected_img_count, (
-        'Убедитесь, что при создании публикации она отображается с картинкой.'
-    )
+    assert (
+        img_count >= expected_img_count
+    ), 'Убедитесь, что при создании публикации она отображается с картинкой.'
 
     edit_response, edit_url, del_url = _test_edit_post(
         CommentModelAdapter,
@@ -122,8 +143,8 @@ def test_post(
     del_url_addr = del_url.key
 
     del_unexisting_status_404_err_msg = (
-        "Убедитесь, что при обращении к странице удаления "
-        " несуществующего поста возвращается статус 404."
+        'Убедитесь, что при обращении к странице удаления '
+        ' несуществующего поста возвращается статус 404.'
     )
     delete_tester = DeletePostTester(
         item_to_delete_adapter.item_cls,
@@ -147,27 +168,29 @@ def test_post(
         raise AssertionError(del_unexisting_status_404_err_msg)
 
     err_msg_unexisting_status_404 = (
-        "Убедитесь, что при обращении к странице "
-        " несуществующего поста возвращается статус 404."
+        'Убедитесь, что при обращении к странице '
+        ' несуществующего поста возвращается статус 404.'
     )
     try:
         response = user_client.get(f"/posts/{item_to_delete_adapter.id}/")
-        assert response.status_code == HTTPStatus.NOT_FOUND, (
-            err_msg_unexisting_status_404)
+        assert (
+            response.status_code == HTTPStatus.NOT_FOUND
+        ), err_msg_unexisting_status_404
     except Post.DoesNotExist:
         raise AssertionError(err_msg_unexisting_status_404)
 
     edit_status_code_not_404_err_msg = (
-        "Убедитесь, что при обращении к странице редактирования"
-        " несуществующего поста возвращается статус 404."
+        'Убедитесь, что при обращении к странице редактирования'
+        ' несуществующего поста возвращается статус 404.'
     )
     try:
         response = user_client.get(edit_url[0])
     except Post.DoesNotExist:
         raise AssertionError(edit_status_code_not_404_err_msg)
 
-    assert response.status_code == HTTPStatus.NOT_FOUND, (
-        edit_status_code_not_404_err_msg)
+    assert (
+        response.status_code == HTTPStatus.NOT_FOUND
+    ), edit_status_code_not_404_err_msg
 
     @contextmanager
     def set_post_unpublished(post_adapter):
@@ -199,7 +222,8 @@ def test_post(
         try:
             post_adapter.pub_date = post_adapter.pub_date.replace(
                 year=current_date.year + 1,
-                day=current_date.day - 1 or current_date.day)
+                day=current_date.day - 1 or current_date.day,
+            )
             post_adapter.save()
             yield
         finally:
@@ -208,8 +232,9 @@ def test_post(
 
     def check_post_access(client, post_adapter, err_msg, expected_status):
         url = f"/posts/{post_adapter.id}/"
-        get_get_response_safely(client, url=url, err_msg=err_msg,
-                                expected_status=expected_status)
+        get_get_response_safely(
+            client, url=url, err_msg=err_msg, expected_status=expected_status
+        )
 
     # Checking unpublished post
 
@@ -217,52 +242,63 @@ def test_post(
 
     with set_post_unpublished(detail_post_adapter):
         check_post_access(
-            user_client, detail_post_adapter,
-            "Убедитесь, что страница поста, снятого с публикации, "
-            "доступна автору этого поста.",
-            expected_status=HTTPStatus.OK)
+            user_client,
+            detail_post_adapter,
+            'Убедитесь, что страница поста, снятого с публикации, '
+            'доступна автору этого поста.',
+            expected_status=HTTPStatus.OK,
+        )
         check_post_access(
-            another_user_client, detail_post_adapter,
-            "Убедитесь, что страница поста, снятого с публикации, "
-            "доступна только автору этого поста.",
-            expected_status=HTTPStatus.NOT_FOUND)
+            another_user_client,
+            detail_post_adapter,
+            'Убедитесь, что страница поста, снятого с публикации, '
+            'доступна только автору этого поста.',
+            expected_status=HTTPStatus.NOT_FOUND,
+        )
 
     with set_post_category_unpublished(detail_post_adapter):
         check_post_access(
-            user_client, detail_post_adapter,
-            "Убедитесь, что страница поста, принадлежащего категории, "
-            "снятой с публикации, доступна автору этого поста.",
-            expected_status=HTTPStatus.OK)
+            user_client,
+            detail_post_adapter,
+            'Убедитесь, что страница поста, принадлежащего категории, '
+            'снятой с публикации, доступна автору этого поста.',
+            expected_status=HTTPStatus.OK,
+        )
         check_post_access(
-            another_user_client, detail_post_adapter,
-            "Убедитесь, что страница поста, принадлежащего категории, "
-            "снятой с публикации, "
-            "доступна только автору этого поста.",
-            expected_status=HTTPStatus.NOT_FOUND)
+            another_user_client,
+            detail_post_adapter,
+            'Убедитесь, что страница поста, принадлежащего категории, '
+            'снятой с публикации, '
+            'доступна только автору этого поста.',
+            expected_status=HTTPStatus.NOT_FOUND,
+        )
 
     with set_post_postponed(detail_post_adapter):
         check_post_access(
-            user_client, detail_post_adapter,
-            "Убедитесь, что страница отложенного поста "
-            "доступна автору.",
-            expected_status=HTTPStatus.OK)
+            user_client,
+            detail_post_adapter,
+            'Убедитесь, что страница отложенного поста ' 'доступна автору.',
+            expected_status=HTTPStatus.OK,
+        )
         check_post_access(
-            another_user_client, detail_post_adapter,
-            "Убедитесь, что страница отложенного поста "
-            "доступна только автору.",
-            expected_status=HTTPStatus.NOT_FOUND)
+            another_user_client,
+            detail_post_adapter,
+            'Убедитесь, что страница отложенного поста '
+            'доступна только автору.',
+            expected_status=HTTPStatus.NOT_FOUND,
+        )
 
 
 def _test_create_items(
-        PostModel,
-        PostAdapter,
-        another_user_client,
-        create_a_post_get_response,
-        ctx_form,
-        published_category,
-        published_location,
-        unlogged_client,
-        user_client,
+    PostModel,
+    PostAdapter,
+    another_user_client,
+    create_a_post_get_response,
+    ctx_form,
+    published_category,
+    published_location,
+    unlogged_client,
+    user_client,
 ) -> Tuple[HttpResponse, List[ModelAdapterT]]:
     creation_tester = CreatePostFormTester(
         create_a_post_get_response,
@@ -281,11 +317,11 @@ def _test_create_items(
     for i in rand_range:
         forms_data.append(
             {
-                "title": f"Test create post {i} title",
-                "text": f"Test create post {i} text",
-                "pub_date": timezone.now(),
-                "category": published_category,
-                "location": published_location,
+                'title': f"Test create post {i} title",
+                'text': f"Test create post {i} text",
+                'pub_date': timezone.now(),
+                'category': published_category,
+                'location': published_location,
             }
         )
     forms_to_create = creation_tester.init_create_item_forms(
@@ -300,7 +336,7 @@ def _test_create_items(
         )
     except FormValidationException as e:
         raise AssertionError(
-            "Убедитесь, что для валидации"
+            'Убедитесь, что для валидации'
             f" {creation_tester.of_which_form} достаточно заполнить следующие"
             f" поля: {list(forms_to_create[0].data.keys())}. При валидации"
             f" формы возникли следующие ошибки: {e}"
@@ -308,10 +344,13 @@ def _test_create_items(
     response_on_created, created_items = creation_tester.test_create_several(
         forms=forms_to_create[1:], qs=PostModel.objects.all()
     )
-    content = response_on_created.content.decode(encoding="utf8")
+    content = response_on_created.content.decode(encoding='utf8')
     redirected_to_profile = any(
-        [f'/profile/{PostAdapter(created_items[0]).author.username}' in x[0]
-         for x in response_on_created.redirect_chain])
+        [
+            f'/profile/{PostAdapter(created_items[0]).author.username}' in x[0]
+            for x in response_on_created.redirect_chain
+        ]
+    )
     assert response_on_created.redirect_chain and redirected_to_profile, (
         'Убедитесь, что при создании поста '
         'пользователь перенаправляется на страницу своего профиля по '
@@ -322,11 +361,11 @@ def _test_create_items(
 
 
 def _test_edit_post(
-        CommentModelAdapter,
-        another_user_client,
-        comment_to_a_post,
-        unlogged_client,
-        user_client,
+    CommentModelAdapter,
+    another_user_client,
+    comment_to_a_post,
+    unlogged_client,
+    user_client,
 ) -> Tuple[HttpResponse, KeyVal, KeyVal]:
     comment_adapter = CommentModelAdapter(comment_to_a_post)
     item_to_edit = comment_adapter.post
@@ -338,16 +377,16 @@ def _test_edit_post(
         comment_adapter,
         response_on_commented,
         urls_start_with=KeyVal(
-            key=post_url.replace(f"/{item_to_edit.id}/", "/<post_id>/"),
+            key=post_url.replace(f"/{item_to_edit.id}/", '/<post_id>/'),
             val=post_url,
         ),
     )
     assert edit_url.key == f"/posts/{item_to_edit.id}/edit/", (
-        "Убедитесь, что адрес страницы редактирования поста -"
-        " `posts/<post_id>/edit/`."
+        'Убедитесь, что адрес страницы редактирования поста -'
+        ' `posts/<post_id>/edit/`.'
     )
     edit_url = KeyVal(
-        re.sub(r"\d+", str(item_to_edit.id), edit_url.key), edit_url.val
+        re.sub(r'\d+', str(item_to_edit.id), edit_url.key), edit_url.val
     )
     image = PostFormTester.generate_files_dict()
     item_to_edit_adapter = PostModelAdapter(item_to_edit)

@@ -11,7 +11,6 @@ from form.base_form_tester import (
     FormTagMissingException,
     FormMethodException,
     TextareaMismatchException,
-    TextareaTagMissingException,
 )
 from form.base_form_tester import (
     SubmitTester,
@@ -39,8 +38,8 @@ class EditUserFormTester(BaseFormTester):
             )
         except FormTagMissingException as e:
             raise AssertionError(
-                "Убедитесь, что на страницу редактирования профиля"
-                " пользователя передаётся форма."
+                'Убедитесь, что на страницу редактирования профиля'
+                ' пользователя передаётся форма.'
             ) from e
 
     @property
@@ -50,7 +49,7 @@ class EditUserFormTester(BaseFormTester):
     @property
     def textarea_tag(self) -> bs4.Tag:
         raise NotImplementedError(
-            "This tag is not applicable on user profile page."
+            'This tag is not applicable on user profile page.'
         )
 
     def _validate(self):
@@ -58,13 +57,13 @@ class EditUserFormTester(BaseFormTester):
             super()._validate()
         except FormTagMissingException as e:
             raise AssertionError(
-                "Убедитесь, что на страницу редактирования профиля"
-                " пользователя передаётся форма."
+                'Убедитесь, что на страницу редактирования профиля'
+                ' пользователя передаётся форма.'
             ) from e
         except FormMethodException as e:
             raise AssertionError(
-                "Убедитесь, что форма редактирования профиля пользователя"
-                " отправляется методом `POST`."
+                'Убедитесь, что форма редактирования профиля пользователя'
+                ' отправляется методом `POST`.'
             ) from e
         except TextareaMismatchException:
             pass
@@ -80,7 +79,7 @@ class EditUserFormTester(BaseFormTester):
             return super().try_create_item(form, qs, submitter, assert_created)
         except FormValidationException as e:
             raise AssertionError(
-                "При редактировании профиля пользователя возникает ошибка:\n"
+                'При редактировании профиля пользователя возникает ошибка:\n'
                 f"{type(e).__name__}: {e}"
             ) from e
 
@@ -91,9 +90,9 @@ class EditUserFormTester(BaseFormTester):
             super().test_unlogged_cannot_create(form, qs)
         except ItemCreatedException as e:
             raise AssertionError(
-                "Проверьте, что если неаутентифицированный пользователь"
-                " отправит форму редактирования профиля - объект пользователя"
-                " в базе данных не будет создан или изменён."
+                'Проверьте, что если неаутентифицированный пользователь'
+                ' отправит форму редактирования профиля - объект пользователя'
+                ' в базе данных не будет создан или изменён.'
             ) from e
 
     def test_edit_item(
@@ -103,23 +102,23 @@ class EditUserFormTester(BaseFormTester):
             return super().test_edit_item(updated_form, qs, item_adapter)
         except UnauthorizedEditException:
             raise AssertionError(
-                "Убедитесь, что пользователь не может редактировать чужой"
-                " профиль пользователя."
+                'Убедитесь, что пользователь не может редактировать чужой'
+                ' профиль пользователя.'
             )
         except UnauthenticatedEditException:
             raise AssertionError(
-                "Убедитесь, что неаутентифицированный пользователь не может"
-                " редактировать профиль пользователя."
+                'Убедитесь, что неаутентифицированный пользователь не может'
+                ' редактировать профиль пользователя.'
             )
         except AuthenticatedEditException:
             raise AssertionError(
-                "Убедитесь, что пользователь может редактировать свой"
-                " профиль."
+                'Убедитесь, что пользователь может редактировать свой'
+                ' профиль.'
             )
         except DatabaseCreationException:
             raise AssertionError(
-                "Убедитесь, что при редактировании профиля пользователя в"
-                " базе данных не создаётся новый объект профиля пользователя."
+                'Убедитесь, что при редактировании профиля пользователя в'
+                ' базе данных не создаётся новый объект профиля пользователя.'
             )
 
     def redirect_error_message(
@@ -129,55 +128,55 @@ class EditUserFormTester(BaseFormTester):
             redirect_to_page
         )
         return (
-            "Убедитесь, что после отправки формы редактирования профиля"
+            'Убедитесь, что после отправки формы редактирования профиля'
             f" пользователя {by_user} он перенаправляется на"
             f" {redirect_to_page_repr}."
         )
 
     def status_error_message(self, by_user: str) -> str:
         return (
-            "Убедитесь, что при отправке формы редактирования профиля"
+            'Убедитесь, что при отправке формы редактирования профиля'
             f" пользователя {by_user} не возникает ошибок."
         )
 
     @property
     def author_assignment_error_message(self) -> str:
         return (
-            "Убедитесь, что в форму редактирования профиля пользователя в поле"
-            " «автор» передаётся аутентифицированный пользователь."
+            'Убедитесь, что в форму редактирования профиля пользователя в поле'
+            ' «автор» передаётся аутентифицированный пользователь.'
         )
 
     @property
     def display_text_error_message(self) -> str:
         return (
-            "Убедитесь, что после редактировании профиля пользователя новый"
-            " текст отображается на странице профиля."
+            'Убедитесь, что после редактировании профиля пользователя новый'
+            ' текст отображается на странице профиля.'
         )
 
     def validation_error_message(self, student_form_fields_str: str) -> str:
         return (
-            "Убедитесь, что для валидации формы редактирования профиля"
-            " пользователя достаточно заполнить следующие поля:"
+            'Убедитесь, что для валидации формы редактирования профиля'
+            ' пользователя достаточно заполнить следующие поля:'
             f" {student_form_fields_str}."
         )
 
     @property
     def item_not_created_assertion_msg(self):
         return (
-            "Убедитесь, что при отправке формы редактирования профиля"
-            " пользователя авторизованным пользователем в базе данных не"
-            " создаётся новый профиль пользователя."
+            'Убедитесь, что при отправке формы редактирования профиля'
+            ' пользователя авторизованным пользователем в базе данных не'
+            ' создаётся новый профиль пользователя.'
         )
 
     @property
     def wrong_author_assertion_msg(self):
         raise NotImplementedError(
-            "User profiles are not supposed to be created from code."
+            'User profiles are not supposed to be created from code.'
         )
 
     def creation_assertion_msg(self, prop):
         return (
-            "Убедитесь, что после отправки формы редактировании профиля"
-            " пользователя правильно работает  переадресация. Проверьте, что"
+            'Убедитесь, что после отправки формы редактировании профиля'
+            ' пользователя правильно работает  переадресация. Проверьте, что'
             f" значение поля `{prop}` отображается на странице профиля."
         )
