@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import ProfileEditForm
+from .forms import PostForm, ProfileEditForm
 from .models import Category, Post
 
 User = get_user_model()
@@ -36,10 +37,14 @@ def index(request):
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(
-        get_published_posts(),
-        pk=post_id,
-    )
+    post = get_object_or_404(Post, pk=post_id)
+    if post.author != request.user:
+        if (
+            not post.is_published
+            or (post.category and not post.category.is_published)
+            or post.pub_date > timezone.now()
+        ):
+            raise Http404('Публикация не найдена')
     return render(request, 'blog/detail.html', {'post': post})
 
 
@@ -106,4 +111,10 @@ def edit_profile(request):
 
 @login_required
 def create_post(request):
-    return render(request, 'blog/create.html')
+    form = PostForm(request.POST or None, files=request.FILES or None)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.save()
+        return redirect('blog:profile', username=request.user.username)
+    return render(request, 'blog/create.html', {'form': form})
