@@ -1,14 +1,6 @@
 from django.shortcuts import render
 
 
-def about(request):
-    return render(request, 'pages/about.html')
-
-
-def rules(request):
-    return render(request, 'pages/rules.html')
-
-
 def page_not_found(request, exception):
     return render(request, 'pages/404.html', status=404)
 
