@@ -1,0 +1,29 @@
+[flake8]
+ignore =
+    E203,
+    E266,
+    W503,
+    D100,
+    D101,
+    D102,
+    D103,
+    D104,
+    D105,
+    D106,
+    D107
+
+max-line-length = 79
+
+max-complexity = 10
+
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    docs,
+    migrations,
+    old_code.py
+
+filename = *.py
