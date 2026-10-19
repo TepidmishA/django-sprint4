@@ -118,3 +118,19 @@ def create_post(request):
         post.save()
         return redirect('blog:profile', username=request.user.username)
     return render(request, 'blog/create.html', {'form': form})
+
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    if post.author != request.user:
+        return redirect('blog:post_detail', post_id=post_id)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post,
+    )
+    if form.is_valid():
+        form.save()
+        return redirect('blog:post_detail', post_id=post_id)
+    return render(request, 'blog/create.html', {'form': form})
