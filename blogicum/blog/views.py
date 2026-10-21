@@ -13,19 +13,23 @@ User = get_user_model()
 POSTS_PER_PAGE = 10
 
 
-def get_published_posts():
-    return (
-        Post.objects.select_related(
-            'category',
-            'location',
-            'author',
-        )
-        .filter(
-            pub_date__lte=timezone.now(),
-            is_published=True,
-            category__is_published=True,
-        )
-        .annotate(comment_count=Count('comments'))
+def get_published_posts_queryset():
+    """Фильтрация записей из таблицы постов по опубликованности."""
+    return Post.objects.select_related(
+        'category',
+        'location',
+        'author',
+    ).filter(
+        pub_date__lte=timezone.now(),
+        is_published=True,
+        category__is_published=True,
+    )
+
+
+def annotate_comment_count(queryset):
+    """Вычисление количества комментариев и сортировка."""
+    return queryset.annotate(comment_count=Count('comments')).order_by(
+        '-pub_date'
     )
 
 
@@ -36,7 +40,7 @@ def paginate_posts(request, queryset):
 
 
 def index(request):
-    post_list = get_published_posts().order_by('-pub_date')
+    post_list = annotate_comment_count(get_published_posts_queryset())
     page_obj = paginate_posts(request, post_list)
     return render(request, 'blog/index.html', {'page_obj': page_obj})
 
@@ -69,18 +73,15 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
-    post_list = (
+    post_list = annotate_comment_count(
         category.posts.select_related(
             'category',
             'location',
             'author',
-        )
-        .filter(
+        ).filter(
             pub_date__lte=timezone.now(),
             is_published=True,
         )
-        .annotate(comment_count=Count('comments'))
-        .order_by('-pub_date')
     )
     page_obj = paginate_posts(request, post_list)
     return render(
@@ -96,30 +97,14 @@ def category_posts(request, category_slug):
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     if request.user == profile_user:
-        posts = (
-            profile_user.posts.select_related(
-                'category',
-                'location',
-                'author',
-            )
-            .annotate(comment_count=Count('comments'))
-            .order_by('-pub_date')
+        posts = profile_user.posts.select_related(
+            'category',
+            'location',
+            'author',
         )
     else:
-        posts = (
-            profile_user.posts.select_related(
-                'category',
-                'location',
-                'author',
-            )
-            .filter(
-                pub_date__lte=timezone.now(),
-                is_published=True,
-                category__is_published=True,
-            )
-            .annotate(comment_count=Count('comments'))
-            .order_by('-pub_date')
-        )
+        posts = get_published_posts_queryset().filter(author=profile_user)
+    posts = annotate_comment_count(posts)
 
     page_obj = paginate_posts(request, posts)
     context = {
