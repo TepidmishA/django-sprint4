@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% block title %}
-  {% if '/edit/' in request.path %}
+  {% if request.resolver_match.url_name == 'edit_post' %}
     Редактирование публикации
-  {% elif "/delete/" in request.path %}
+  {% elif request.resolver_match.url_name == 'delete_post' %}
     Удаление публикации
   {% else %}
     Добавление публикации
@@ -13,9 +13,9 @@
   <div class="col d-flex justify-content-center">
     <div class="card" style="width: 40rem;">
       <div class="card-header">
-        {% if '/edit/' in request.path %}
+        {% if request.resolver_match.url_name == 'edit_post' %}
           Редактирование публикации
-        {% elif '/delete/' in request.path %}
+        {% elif request.resolver_match.url_name == 'delete_post' %}
           Удаление публикации
         {% else %}
           Добавление публикации
@@ -24,7 +24,7 @@
       <div class="card-body">
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
-          {% if not '/delete/' in request.path %}
+          {% if request.resolver_match.url_name != 'delete_post' %}
             {% bootstrap_form form %}
           {% else %}
             <article>
